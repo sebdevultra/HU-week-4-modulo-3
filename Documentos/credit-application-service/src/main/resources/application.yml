@@ -1,0 +1,250 @@
+# ============================================================================
+# Spring Boot Application Configuration
+# Credit Application Service
+# ============================================================================
+
+spring:
+  application:
+    name: credit-application-service
+  
+  # ============================================================================
+  # Database Configuration - MySQL
+  # ============================================================================
+  datasource:
+    url: jdbc:mysql://localhost/credit_application_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: root
+    password: Qwe.123*
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    
+    # HikariCP Connection Pool
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 20
+      idle-timeout: 300000
+      max-lifetime: 1200000
+      connection-timeout: 30000
+      pool-name: CreditAppHikariPool
+      leak-detection-threshold: 60000
+      auto-commit: false
+      connection-test-query: SELECT 1
+
+  # ============================================================================
+  # JPA / Hibernate Configuration with Optimizations
+  # ============================================================================
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    show-sql: false
+    open-in-view: false  # Disable OSIV to avoid lazy loading issues
+    
+    hibernate:
+      ddl-auto: none  # Use Flyway for schema management
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl
+    
+    properties:
+      hibernate:
+        # ========================================================================
+        # Performance Optimizations
+        # ========================================================================
+        
+        # Batch Processing - Critical for N+1 problem
+        jdbc:
+          batch_size: 20
+          fetch_size: 50
+          batch_versioned_data: true
+          time_zone: UTC
+        order_inserts: true
+        order_updates: true
+        
+        # Second Level Cache Configuration (Optional - requires cache provider)
+        cache:
+          use_second_level_cache: true
+          use_query_cache: true
+          region:
+            factory_class: org.hibernate.cache.jcache.JCacheRegionFactory
+        
+        # Query Optimization
+        query:
+          in_clause_parameter_padding: true
+          fail_on_pagination_over_collection_fetch: true
+          plan_cache_max_size: 2048
+        
+        # Default Batch Fetch Size for @OneToMany and @ManyToMany
+        # This helps avoid N+1 queries when loading collections
+        default_batch_fetch_size: 10
+        
+        # Enable statistics for monitoring (disable in production)
+        generate_statistics: false
+        
+        # Logging
+        format_sql: true
+        use_sql_comments: true
+        
+        # Connection handling
+        connection:
+          provider_disables_autocommit: true
+
+
+  # ============================================================================
+  # Flyway Migration Configuration
+  # ============================================================================
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    validate-on-migrate: true
+    locations: classpath:db/migration
+    baseline-version: 0
+    baseline-description: Initial baseline
+    encoding: UTF-8
+    placeholder-replacement: true
+    placeholders:
+      schema: public
+
+  # ============================================================================
+  # Transaction Management
+  # ============================================================================
+  transaction:
+    default-timeout: 30
+    rollback-on-commit-failure: true
+
+# ============================================================================
+# Server Configuration
+# ============================================================================
+server:
+  port: 8081
+  servlet:
+    context-path: /api
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: on_param
+    include-exception: false
+
+# ============================================================================
+# Logging Configuration
+# ============================================================================
+logging:
+  level:
+    root: INFO
+    com.riwi.creditapplication: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springframework.orm.jpa: DEBUG
+    org.springframework.transaction: DEBUG
+    org.hibernate.stat: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/credit-application-service.log
+    max-size: 10MB
+    max-history: 30
+
+# ============================================================================
+# Application Specific Configuration
+# ============================================================================
+application:
+  # Business Rules
+  business:
+    minimum-salary: 1000000
+    maximum-debt-to-income-ratio: 0.40
+    minimum-credit-score: 500
+    default-batch-fetch-size: 10
+  
+  # Risk Central Integration
+  risk-central:
+    base-url: ${RISK_CENTRAL_URL:http://localhost:8082/api}
+    timeout: 5000
+    retry:
+      max-attempts: 3
+      backoff: 1000
+  
+  # Security
+  security:
+    jwt:
+      secret: ${JWT_SECRET:xkXHqbWqyQYpJO8d1NNdGbBsutuOZLDP94eZAHGlLEQ=}
+      expiration: 86400000  # 24 hours in milliseconds
+      refresh-expiration: 604800000  # 7 days
+
+# ============================================================================
+# Actuator Configuration (Monitoring)
+# ============================================================================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+  health:
+    db:
+      enabled: true
+
+# ============================================================================
+# Spring Profiles
+# ============================================================================
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        generate_statistics: true
+        format_sql: true
+
+logging:
+  level:
+    com.riwi.creditapplication: DEBUG
+    org.hibernate.SQL: DEBUG
+
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+
+  flyway:
+    enabled: false
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        generate_statistics: false
+
+logging:
+  level:
+    root: WARN
+    com.riwi.creditapplication: INFO
+    org.hibernate.SQL: WARN
