@@ -1,12 +1,12 @@
-const titulo = document.getElementById("titulo");
-const parrafo = document.getElementById("parrafo");
-const inputNombreP = document.getElementById("input-nombreP");
-const inputPrecio = document.getElementById("input-precio");
-const inputDescripcion = document.getElementById("input-descripcion");
-const listaNotas = document.getElementById("listaNotas");
-const btnAgregar = document.getElementById("btn-agregar");
-const formulario = document.getElementById("formulario");
-
+const titulo = document.querySelector("#titulo");
+const parrafo = document.querySelector("#parrafo");
+const inputNombreP = document.querySelector("#input-nombreP");
+const inputPrecio = document.querySelector("#input-precio");
+const inputDescripcion = document.querySelector("#input-descripcion");
+const listaDatos = document.querySelector("#lista-datos");
+const btnAgregar = document.querySelector("#btn-agregar");
+const formulario = document.querySelector("#formulario");
+let datos = JSON.parse(localStorage.getItem("datos")) || [];
 formulario.addEventListener("submit", (event)=> {
     event.preventDefault(); // Evita que el formulario se envíe de forma predeterminada
     const nombreP = inputNombreP.value.trim();
@@ -20,13 +20,38 @@ formulario.addEventListener("submit", (event)=> {
         console.error("El precio debe ser un número válido y positivo.");
         return;
     }
-    if (nombreP && precio && descripcion) {
-        const liNuevo = document.createElement("li");
-        liNuevo.textContent = `Producto: ${nombreP}, Precio: ${precio}, Descripción: ${descripcion}`;
-        listaNotas.appendChild(liNuevo);
-        console.log("%c✔ Éxito: El producto se guardó correctamente.", "color: #2ecc71; font-weight: bold;");
-        }
-    inputNombreP.value = "";
-    inputPrecio.value = "";
-    inputDescripcion.value = "";
+    datos.push({nombreP,precio,descripcion});
+    localStorage.setItem("datos",JSON.stringify(datos));
+    listarDatos();
+    console.log("%c✔ Éxito: El producto se guardó correctamente.", "color: #2ecc71; font-weight: bold;");
+    formulario.reset();
 });
+function eliminarDato(event){
+    if(event.target.tagName==='BUTTON'){
+        const datoABorrar = event.target.parentElement;
+        const index = Array.from(listaDatos.children).indexOf(datoABorrar);
+        datos.splice(index, 1);
+        localStorage.setItem("datos",JSON.stringify(datos));
+        listaDatos.removeChild(datoABorrar);
+        console.log("Dato eliminado correctamente");
+    }
+}
+
+listaDatos.addEventListener("click",eliminarDato);
+
+function listarDatos(){
+    listaDatos.innerHTML = "";
+    datos.forEach(dato => {
+        const nuevoLi =document.createElement("li");
+        const btnX = document.createElement("button");
+        btnX.textContent="X";
+        btnX.style.margin="20px";
+        nuevoLi.textContent = `Producto: ${dato.nombreP}, Precio: ${dato.precio}, Descripción: ${dato.descripcion}`;
+        nuevoLi.appendChild(btnX);
+        listaDatos.appendChild(nuevoLi);
+        
+    });
+    
+}
+listarDatos();
+console.log(`Se han cargado correctamente ${datos.length} datos`);
