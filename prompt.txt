@@ -1,2 +1,25 @@
 
-*"Hola. Estoy trabajando en un proyecto de gestión de productos en JavaScript vanilla. El código actual ya valida los campos, guarda y elimina datos usando un arreglo global sincronizado con localStorage, y renderiza todo mediante una única función centralizada.Estructura del objeto en el arreglo: {nombreP: string, precio: string, descripcion: string}Aquí tienes mi código de JavaScript y mi HTML actual. Necesito tu ayuda para [insertar aquí tu siguiente objetivo]."*
+*"Hola. Estoy trabajando en un proyecto de gestión de productos en JavaScript vanilla.
+El código actual ya valida los campos, guarda y elimina datos usando un arreglo global
+sincronizado con localStorage, y renderiza todo mediante una única función centralizada.
+Estructura del objeto en el arreglo: {nombreP: string, precio: string, descripcion: string}
+Aquí tienes mi código de JavaScript y mi HTML actual. Necesito tu ayuda para
+[insertar aquí tu siguiente objetivo]."*
+
+//DOMCONTENTLOADED
+El evento DOMContentLoaded es un evento nativo de JavaScript que se dispara
+cuando el navegador ha terminado de cargar y parsear completamente el HTML 
+de la página [1].Lo importante de este evento es que no espera a que terminen
+de cargar las imágenes, los estilos CSS o los iframes [1]. Esto significa
+que el código se ejecuta mucho más rápido, justo en el momento exacto en 
+que los elementos del DOM (como tus inputs, botones y formularios) ya 
+existen y se pueden manipular de forma segura con JavaScript.
+
+//POPSTATE
+El evento popstate es un evento nativo de JavaScript que se dispara en el objeto window 
+cada vez que el usuario realiza una acción de navegación en el historial del navegador. 
+Esto ocurre principalmente cuando el usuario hace clic en los botones "Atrás" ↩️ o "Adelante" ↪️
+del navegador, o cuando se ejecuta en código history.back() o history.forward().
+Este evento es una pieza fundamental para crear las llamadas SPAs (Single Page Applications)
+o Aplicaciones de una Sola Página, donde cambias lo que ve el usuario sin recargar por
+completo la pestaña.
