@@ -172,3 +172,18 @@ body {
     flex-direction: column;
     gap: 0.3rem;
 }
+.btn-editar {
+    margin: 10px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 5px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s ease; /* Efecto suave de color */
+}
+
+/* Efecto cuando pasas el mouse por encima */
+.btn-editar:hover {
+    background-color: #2980b9; /* Un azul un poco más oscuro */
+}
